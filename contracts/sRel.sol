@@ -111,8 +111,8 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
 
   // onwer can set amount of vested tokens manually
   // NOTE: REL must be sent to this contract before this method is called 
-  function setVestedAmount(address account, uint256 amountShort, uint256 amountLong) onlyOwner external override(IsRel) {
-    _setVestedAmount(account, amountShort, amountLong);
+  function setVestedAmount(address account, uint256 shortAmnt, uint256 longAmnt) onlyOwner external override(IsRel) {
+    _setVestedAmount(account, shortAmnt, longAmnt);
   }
 
   /**
@@ -136,10 +136,10 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
 
   // helper function that initializes vesting amounts
   // NOTE: REL must be sent to this contract before this method is called 
-  function _setVestedAmount(address account, uint256 amountShort, uint256 amountLong) internal {
-    vest[account].setVestedAmount(amountShort, amountLong);
-    require(totalSupply() + amountShort + amountLong <= IERC20(r3l).balanceOf(address(this)), "sRel: Not enought REL in contract");
-    _mint(account, amountShort + amountLong);
+  function _setVestedAmount(address account, uint256 shortAmnt, uint256 longAmnt) internal {
+    vest[account].setVestedAmount(shortAmnt, longAmnt);
+    require(totalSupply() + shortAmnt + longAmnt <= IERC20(r3l).balanceOf(address(this)), "sRel: Not enought REL in contract");
+    _mint(account, shortAmnt + longAmnt);
   }
 
   // unvest and unlock tokens
@@ -151,7 +151,7 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
   // transfer all vested tokens to a new address
   function transferVestedTokens(address to) external override(IsRel) {
     uint amount = vest[msg.sender].vested();
-    vest[msg.sender].transferVestedTokens(vest[to]);
+    vest[msg.sender].transferVestedTokens(vest[to], to);
     transfer(to, amount);
   }
   
@@ -159,10 +159,12 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
 
   function updateLockPeriod(uint newLockPeriod) external onlyOwner override(IsRel) {
     lockPeriod = newLockPeriod;
+    // emit lockPeriodUpdated(lockPeriod); // pushes contract size over the limit
   }
 
   function setVestAdmin(address newAdmin) external onlyOwner override(IsRel) {
     vestAdmin = newAdmin;
+    // emit vestAdminUpdated(vestAdmin);  // pushes contract size over the limit
   }
 
   // ---- VIEW --------

@@ -5,6 +5,16 @@ import "../libraries/Utils.sol";
 
 // Relevant Governance Token
 interface IsRel {
+
+  // staking events
+  event lockUpdated(address indexed account, Utils.Unlock unlockData);
+  // vesting events
+  event vestUpdated(address indexed account, Utils.Vest vestData);
+
+  // governance events (contract size is too large for these)
+  // event lockPeriodUpdated(uint newLockPeriod);
+  // event vestAdminUpdated(address newVestAdmin);
+
   // staking
   function unlock(uint256 amount) external;
   function resetLock() external;
