@@ -20,3 +20,9 @@ sREL is governance wrapper for REL tokens and allows staking and vesting
  - The params are global - meant to distribute a set amount of tokens to users
  - Vested tokens can be used to cast governance votes
  - The full amount of vested tokens can be transferred to a new account 
+
+## Governor
+Openzeppelin Governor contract that can self-modify the `votingPeriod`, `proposalThreshhold` and `votingDelay`.
+
+## Timelock
+Openzeppelin Timlock that will add a delay to all governance decisions.
