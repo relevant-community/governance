@@ -27,7 +27,7 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
   // start of all vesting periods
   uint public immutable vestBegin;
   uint public immutable vestShort; // short vesting period
-  uint public immutable vestLong; // long vesting period (using immutable here increases contract size)
+  uint public immutable vestLong; // long vesting period
 
   mapping(address => uint256) public vestNonce;
   mapping(address => Utils.Unlock) public unlocks;
@@ -159,12 +159,12 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
 
   function updateLockPeriod(uint newLockPeriod) external onlyOwner override(IsRel) {
     lockPeriod = newLockPeriod;
-    // emit lockPeriodUpdated(lockPeriod); // pushes contract size over the limit
+    emit lockPeriodUpdated(lockPeriod);
   }
 
   function setVestAdmin(address newAdmin) external onlyOwner override(IsRel) {
     vestAdmin = newAdmin;
-    // emit vestAdminUpdated(vestAdmin);  // pushes contract size over the limit
+    emit vestAdminUpdated(vestAdmin);
   }
 
   // ---- VIEW --------
