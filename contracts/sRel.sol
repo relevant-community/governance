@@ -17,11 +17,11 @@ contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
 
   // r3l is an erc20 token that throws on transfers (doesn't return false)
   address public immutable r3l;
+
   // vestAdmin role is responsible for sending tokens to vesting contract
-  // TODO can this be rel contract?
   address public vestAdmin;
 
-  // this is how long it takes for tokens to become unlocked
+  // this is how long it takes for staked tokens to become unlocked
   uint public lockPeriod = 4 days;
 
   // start of all vesting periods
