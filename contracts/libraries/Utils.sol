@@ -65,6 +65,7 @@ library Utils {
     return self.shortAmnt + self.longAmnt;
   }
 
+  // this method updates long and short vesting amounts
   function updateVestedAmount(Vest storage self, uint vestShort, uint vestLong, uint vestBegin) public returns (uint) {
     require(block.timestamp > vestBegin, "sRel Utils: Vesting has't started yet");
     uint amount = 0;

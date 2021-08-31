@@ -8,9 +8,10 @@ import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./interfaces/IsRel.sol";
 import "./libraries/Utils.sol";
 
-contract sRel is ERC20,ERC20Permit, ERC20Votes, Ownable {
+contract sRel is IsRel, ERC20, ERC20Permit, ERC20Votes, Ownable {
   using Utils for Utils.Vest;
   using Utils for Utils.Unlock;
 
@@ -85,23 +86,23 @@ contract sRel is ERC20,ERC20Permit, ERC20Votes, Ownable {
   // ---- STAKING METHODS ----
 
   // unlock sRel - after lockPeriod tokens can be transferred or withdrawn
-  function unlock(uint256 amount) external {
+  function unlock(uint256 amount) external override(IsRel) {
     unlocks[msg.sender].unlock(amount, lockPeriod);
   }
 
    // re-lock tokens
-  function resetLock() external {
+  function resetLock() external override(IsRel) {
     unlocks[msg.sender].resetLock();
   }
 
   // deposit REL in exchange for sREL
-  function stakeRel(uint256 amount) external {
+  function stakeRel(uint256 amount) external override(IsRel) {
     IERC20(r3l).transferFrom(msg.sender, address(this), amount);
     _mint(msg.sender, amount);
   }
 
   // withdraws all unlocked tokens
-  function unstakeRel(uint256 amount) external {
+  function unstakeRel(uint256 amount) external override(IsRel) {
     _burn(msg.sender, amount);
     IERC20(r3l).transfer(msg.sender, amount);
   }
@@ -110,7 +111,7 @@ contract sRel is ERC20,ERC20Permit, ERC20Votes, Ownable {
 
   // onwer can set amount of vested tokens manually
   // NOTE: REL must be sent to this contract before this method is called 
-  function setVestedAmount(address account, uint256 amountShort, uint256 amountLong) onlyOwner external {
+  function setVestedAmount(address account, uint256 amountShort, uint256 amountLong) onlyOwner external override(IsRel) {
     _setVestedAmount(account, amountShort, amountLong);
   }
 
@@ -121,7 +122,7 @@ contract sRel is ERC20,ERC20Permit, ERC20Votes, Ownable {
   * @param  _sig Signature by contract owner authorizing the transaction
   * NOTE: REL must be sent to this contract before this method is called 
   */
-  function vestTokens(uint256 _shortAmount, uint256 _longAmount, bytes memory _sig) external {
+  function vestTokens(uint256 _shortAmount, uint256 _longAmount, bytes memory _sig) external override(IsRel) {
     bytes32 hash = keccak256(abi.encodePacked(_shortAmount, _longAmount, msg.sender, vestNonce[msg.sender]));
     hash = ECDSA.toEthSignedMessageHash(hash);
     address signer = ECDSA.recover(hash, _sig);
@@ -142,44 +143,43 @@ contract sRel is ERC20,ERC20Permit, ERC20Votes, Ownable {
   }
 
   // unvest and unlock tokens
-  function claimVestedRel() external {
+  function claimVestedRel() external override(IsRel) {
     uint amount = vest[msg.sender].updateVestedAmount(vestShort, vestLong, vestBegin);
     unlocks[msg.sender].unlock(amount, lockPeriod);
   }
 
   // transfer all vested tokens to a new address
-  function transferVestedTokens(address to) external {
+  function transferVestedTokens(address to) external override(IsRel) {
     uint amount = vest[msg.sender].vested();
     vest[msg.sender].transferVestedTokens(vest[to]);
     transfer(to, amount);
   }
-
-
-  // ---- VIEW HELPERS --------
-
-  function unstaked(address account) external view returns (uint) {
-    return unlocks[account].unlockAmnt;
-  }
-
-  function unlockTime(address account) external view returns (uint) {
-    return unlocks[account].unlockTime;
-  }
-
-  function vested(address account) external view returns (uint) {
-    return vest[account].vested();
-  }
-
-  function vestData(address account) external view returns (Utils.Vest memory) {
-    return vest[account];
-  }
-
+  
   // ---- GOVERNANCE ----
 
-  function updateLockPeriod(uint newLockPeriod) external onlyOwner {
+  function updateLockPeriod(uint newLockPeriod) external onlyOwner override(IsRel) {
     lockPeriod = newLockPeriod;
   }
 
-  function setVestAdmin(address newAdmin) external onlyOwner {
+  function setVestAdmin(address newAdmin) external onlyOwner override(IsRel) {
     vestAdmin = newAdmin;
+  }
+
+  // ---- VIEW --------
+
+  function unstaked(address account) external view override(IsRel) returns (uint) {
+    return unlocks[account].unlockAmnt;
+  }
+
+  function unlockTime(address account) external view override(IsRel) returns (uint) {
+    return unlocks[account].unlockTime;
+  }
+
+  function vested(address account) external view override(IsRel) returns (uint) {
+    return vest[account].vested();
+  }
+
+  function vestData(address account) external view override(IsRel) returns (Utils.Vest memory) {
+    return vest[account];
   }
 }

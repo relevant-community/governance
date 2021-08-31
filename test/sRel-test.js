@@ -140,7 +140,6 @@ describe('sRel', function () {
       const claimVestTx = await sRel.connect(addr2S).claimVestedRel()
       await claimVestTx.wait()
 
-      console.log(formatEther(shortAmnt), formatEther(longAmnt))
       expect(await sRel.unstaked(addr2)).to.equal(longAmnt.add(shortAmnt))
 
       await withdrawAfterLock(addr2S)
@@ -183,7 +182,6 @@ describe('sRel', function () {
       const claimVestTx = await sRel.connect(addr1S).claimVestedRel()
       await claimVestTx.wait()
 
-      console.log(formatEther(shortAmnt), formatEther(longAmnt))
       expect(await sRel.unstaked(addr1)).to.equal(longAmnt.add(shortAmnt))
 
       await withdrawAfterLock(addr1S)
@@ -301,7 +299,7 @@ describe('sRel', function () {
   async function expectedUnvest(timestamp, account, vestingParams) {
     ;[vestBegin, vestShort, vestLong] = vestingParams
     const vestData = await sRel.vestData(account)
-    const lastUpdate = vestData.lastUpdate.toNumber()
+    const lastUpdate = Math.max(vestData.lastUpdate.toNumber(), vestBegin)
 
     const currentShort = Math.min(timestamp, vestShort)
     const shortAmnt = vestData.shortAmnt
