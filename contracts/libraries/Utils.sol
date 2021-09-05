@@ -5,10 +5,9 @@ library Utils {
   using Utils for Unlock;
   using Utils for Vest;
 
-  // note: events increase contract size
   // staking events
   event lockUpdated(address indexed account, Unlock unlockData);
-  // // vesting events
+  // vesting events
   event vestUpdated(address indexed account, Vest vestData);
 
   struct Vest {

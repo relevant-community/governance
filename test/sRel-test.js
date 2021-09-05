@@ -49,7 +49,12 @@ describe('sRel', function () {
 
     it('should unlock', async function () {
       const unlockTx = await sRel.unlock(parseUnits('50'))
-      await unlockTx.wait()
+      const res = await unlockTx.wait()
+      console.log(
+        'ulock gas',
+        res.gasUsed.toNumber(),
+        (80 * (res.gasUsed.toNumber() * 3400)) / 1e9,
+      )
       expect(await sRel.unstaked(owner)).to.equal(parseUnits('50'))
     })
     it('premature transfer should fail', async function () {
